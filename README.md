@@ -1,8 +1,8 @@
 # Gus Codex Pet
 
-Gus is a photo-grounded Codex pet based on a fox-red Labrador retriever: floppy ears, kind eyes, compact runt-of-the-litter build, and sweet cuddly energy.
+Gus is a photo-grounded Codex pet based on a fox-red Labrador retriever: floppy ears, kind eyes, compact runt-of-the-litter build, no harness, and sweet cuddly energy.
 
-This repo ships only the finished Codex pet assets. The private reference photos used to make Gus are intentionally not included.
+This repo ships only the finished Codex pet assets. The private reference photos used to make Gus are intentionally not included. The final sprite has no harness or collar.
 
 ## Install
 

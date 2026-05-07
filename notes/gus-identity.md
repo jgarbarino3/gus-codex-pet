@@ -13,7 +13,7 @@ Gus is a fox-red Labrador retriever, about 40 pounds and compact for the breed. 
 - Medium-long Labrador muzzle, softened for chibi scale.
 - Pink-brown liver nose with darker outline, not black.
 - Sweet, trusting, cuddly expression; never goofy, derpy, aggressive, or hyper.
-- Collar/harness can be simplified, but the base identity should not depend on accessories.
+- Final pet should have no harness, collar, leash, clothing, rings, or accessories.
 
 ## Codex pet style
 

@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "artifacts" / "gus_photoreal_candidates.png"
+SOURCE = ROOT / "artifacts" / "gus_no_harness_source.png"
 ARTIFACTS = ROOT / "artifacts"
 QA = ROOT / "qa"
 PET_DIR = ROOT / "pets" / "gus"
@@ -70,7 +70,7 @@ def remove_light_background(img: Image.Image) -> Image.Image:
     for y in range(h):
         for x in range(w):
             r, g, b, a = pixels[x, y]
-            # Keep dog/outline/harness pixels; drop the plain off-white candidate card.
+            # Keep Gus/outline pixels; drop the plain off-white generated background.
             off_white = r > 218 and g > 214 and b > 205 and max(r, g, b) - min(r, g, b) < 32
             beige_border = r > 185 and g > 175 and b > 160 and abs(r - g) < 35 and abs(g - b) < 45
             if a and not (off_white or beige_border):
@@ -91,13 +91,11 @@ def extract_gus_sprite() -> Image.Image:
     if not SOURCE.exists():
         raise FileNotFoundError(SOURCE)
     sheet = Image.open(SOURCE).convert("RGBA")
-    w, h = sheet.size
-    # Bottom-right candidate from the generated 2x2 sheet.
-    crop = sheet.crop((w // 2, h // 2, w, h))
+    crop = sheet
     dog = remove_light_background(crop)
-    dog.thumbnail((150, 174), Image.Resampling.LANCZOS)
+    dog.thumbnail((158, 178), Image.Resampling.LANCZOS)
     cell = Image.new("RGBA", (CELL_W, CELL_H), (0, 0, 0, 0))
-    cell.alpha_composite(dog, ((CELL_W - dog.width) // 2, 22 + (154 - dog.height) // 2))
+    cell.alpha_composite(dog, ((CELL_W - dog.width) // 2, 18 + (160 - dog.height) // 2))
     return cell
 
 
