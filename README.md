@@ -36,11 +36,7 @@ Codex loads custom pets from:
 
 - `artifacts/gus_photoreal_base.png` shows the base Gus sprite.
 - `qa/contact-sheet.png` shows the full 9-row Codex animation atlas.
-- `qa/gus-ring-preview.png` shows the tweet-inspired rings preview.
+- `qa/previews/*.gif` contains one animated preview per Codex state.
 - `qa/validation.json` records atlas dimensions and transparent unused-cell validation.
 
 The pet follows the Codex sprite contract: `1536x1872` atlas, 8 columns, 9 rows, `192x208` cells.
-
-## Optional Rings
-
-The screenshot inspiration also shows limit rings around a Codex pet. Those rings are a separate companion overlay, not part of the pet spritesheet. Install Gus first; rings can be added later without changing Gus.

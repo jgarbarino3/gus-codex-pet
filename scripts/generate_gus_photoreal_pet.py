@@ -132,9 +132,10 @@ def sad(sprite: Image.Image, frame: int) -> Image.Image:
 def wave(sprite: Image.Image, frame: int) -> Image.Image:
     out = sprite.copy()
     d = ImageDraw.Draw(out)
-    # Attached paw lift: subtle, because this version is photo-like.
-    y = 128 - frame * 6
-    d.ellipse((115, y, 136, y + 21), fill=(190, 94, 42, 245), outline=(58, 35, 24, 230), width=2)
+    # Attached paw lift: keep it small and dog-like, avoiding cartoon wave marks.
+    y = 145 - frame * 5
+    d.rounded_rectangle((116, y, 131, y + 28), radius=7, fill=(171, 83, 37, 238), outline=(58, 35, 24, 210), width=2)
+    d.ellipse((112, y - 6, 134, y + 12), fill=(202, 111, 54, 244), outline=(58, 35, 24, 220), width=2)
     return out
 
 
@@ -160,6 +161,36 @@ def build_frames(base: Image.Image) -> dict[str, list[Image.Image]]:
     frames["running"] = [shift(base, dx, dy) for dx, dy in [(0, -1), (1, 1), (0, 0), (-1, -1), (0, 1), (1, 0)]]
     frames["review"] = [focus(base, i) for i in range(6)]
     return frames
+
+
+def make_animation_previews(frames: dict[str, list[Image.Image]]) -> None:
+    preview_dir = QA / "previews"
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    durations = {
+        "idle": [280, 110, 110, 140, 140, 320],
+        "running-right": [120, 120, 120, 120, 120, 120, 120, 220],
+        "running-left": [120, 120, 120, 120, 120, 120, 120, 220],
+        "waving": [140, 140, 140, 280],
+        "jumping": [140, 140, 140, 140, 280],
+        "failed": [140, 140, 140, 140, 140, 140, 140, 240],
+        "waiting": [150, 150, 150, 150, 150, 260],
+        "running": [120, 120, 120, 120, 120, 220],
+        "review": [150, 150, 150, 150, 150, 280],
+    }
+    for state, state_frames in frames.items():
+        gif_frames = []
+        for frame in state_frames:
+            bg = Image.new("RGBA", (CELL_W, CELL_H), (18, 20, 22, 255))
+            bg.alpha_composite(frame)
+            gif_frames.append(bg.convert("P", palette=Image.Palette.ADAPTIVE))
+        gif_frames[0].save(
+            preview_dir / f"{state}.gif",
+            save_all=True,
+            append_images=gif_frames[1:],
+            duration=durations[state],
+            loop=0,
+            disposal=2,
+        )
 
 
 def make_atlas(frames: dict[str, list[Image.Image]]) -> Image.Image:
@@ -215,6 +246,7 @@ def main() -> None:
     atlas.save(ARTIFACTS / "gus_spritesheet.png")
     atlas.save(PET_DIR / "spritesheet.webp", "WEBP", lossless=True, quality=100, method=6)
     make_contact_sheet(frames).save(QA / "contact-sheet.png", quality=95)
+    make_animation_previews(frames)
 
     manifest = {
         "id": "gus",
