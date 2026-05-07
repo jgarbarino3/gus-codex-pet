@@ -4,6 +4,19 @@ Gus is a photo-grounded Codex pet based on a fox-red Labrador retriever: floppy 
 
 This repo ships only the finished Codex pet assets. The private reference photos used to make Gus are intentionally not included. The final sprite has no harness or collar.
 
+## Animations
+
+Gus uses the full Codex pet atlas with distinct motions for every supported state:
+
+- `idle`: soft breathing, blink, and a subtle tail wag.
+- `running-right` / `running-left`: bouncy trot with grounded shadows.
+- `waving`: small front-paw lift.
+- `jumping`: squash, hop, air frame, and landing.
+- `failed`: droopy sad expression with a small tear.
+- `waiting`: patient head tilt and blink.
+- `running`: compact in-place trot.
+- `review`: focused attentive look.
+
 ## Install
 
 ```bash
