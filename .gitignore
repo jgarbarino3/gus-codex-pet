@@ -1,0 +1,5 @@
+references-local/
+__pycache__/
+*.pyc
+.DS_Store
+qa/reference-contact.png

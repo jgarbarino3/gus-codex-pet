@@ -1,0 +1,19 @@
+{
+  "errors": [],
+  "rows": {
+    "idle": 6,
+    "running-right": 8,
+    "running-left": 8,
+    "waving": 4,
+    "jumping": 5,
+    "failed": 8,
+    "waiting": 6,
+    "running": 6,
+    "review": 6
+  },
+  "atlas_size": [
+    1536,
+    1872
+  ],
+  "source": "/Users/joegarbarino/Documents/Codex/2026-05-07/can-you-help-me-make-a/gus-codex-pet/artifacts/gus_photoreal_candidates.png"
+}
