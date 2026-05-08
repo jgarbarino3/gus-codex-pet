@@ -152,11 +152,32 @@ def add_shadow(sprite: Image.Image, width: int = 92, opacity: int = 52, lift: in
     return out
 
 
-def tail_spark(sprite: Image.Image, offset: int = 0) -> Image.Image:
+def tail_spark(sprite: Image.Image, offset: int = 0, alpha: int = 42) -> Image.Image:
     out = sprite.copy()
     d = ImageDraw.Draw(out, "RGBA")
     tip_y = 45 + offset
-    d.line((150, 58, 162, tip_y, 173, tip_y - 5), fill=(229, 139, 63, 42), width=3, joint="curve")
+    d.line((150, 58, 162, tip_y, 173, tip_y - 5), fill=(229, 139, 63, alpha), width=3, joint="curve")
+    return out
+
+
+def lively_tail(sprite: Image.Image, frame: int) -> Image.Image:
+    out = sprite.copy()
+    d = ImageDraw.Draw(out, "RGBA")
+    # Paint a short, semi-transparent tail accent close to the real tail tip. This reads as wag
+    # motion at Codex-pet size without replacing Gus's actual tail silhouette.
+    patterns = [
+        [(137, 55), (151, 40), (170, 30)],
+        [(138, 56), (154, 45), (174, 41)],
+        [(139, 57), (154, 51), (173, 55)],
+        [(138, 56), (154, 45), (174, 41)],
+        [(137, 55), (151, 38), (169, 28)],
+        [(138, 56), (153, 43), (172, 36)],
+    ]
+    widths = [5, 5, 4, 5, 5, 5]
+    alphas = [74, 70, 62, 70, 78, 72]
+    pts = patterns[frame]
+    d.line(pts, fill=(72, 39, 19, alphas[frame] - 18), width=widths[frame] + 2, joint="curve")
+    d.line(pts, fill=(224, 130, 54, alphas[frame]), width=widths[frame], joint="curve")
     return out
 
 
@@ -167,6 +188,23 @@ def blink(sprite: Image.Image) -> Image.Image:
     d.line((43, 56, 52, 56), fill=(38, 24, 16, 235), width=2)
     d.line((67, 56, 77, 56), fill=(38, 24, 16, 235), width=2)
     return out
+
+
+def idle_alive(sprite: Image.Image, frame: int) -> Image.Image:
+    poses = [
+        (0, 0, 1.00, 1.00, 0.0, 92, 42),
+        (0, 2, 1.025, 0.985, -0.4, 96, 48),
+        (0, 1, 1.015, 0.995, 0.0, 94, 45),
+        (0, -2, 0.985, 1.025, 0.35, 84, 35),
+        (1, -4, 0.980, 1.035, -0.25, 78, 30),
+        (0, -1, 0.995, 1.015, 0.0, 86, 36),
+    ]
+    dx, dy, sx, sy, angle, shadow_w, shadow_o = poses[frame]
+    out = pose(sprite, dx, dy, sx, sy, angle)
+    if frame == 2:
+        out = blink(out)
+    out = lively_tail(out, frame)
+    return add_shadow(out, shadow_w, shadow_o)
 
 
 def sad(sprite: Image.Image, frame: int) -> Image.Image:
@@ -238,14 +276,7 @@ def hop(sprite: Image.Image, frame: int) -> Image.Image:
 
 def build_frames(base: Image.Image) -> dict[str, list[Image.Image]]:
     frames: dict[str, list[Image.Image]] = {}
-    frames["idle"] = [
-        add_shadow(tail_spark(pose(base, 0, 0, 1.00, 1.00), 0), 88, 38),
-        add_shadow(tail_spark(pose(base, 0, 1, 1.01, 0.995), -4), 90, 38),
-        add_shadow(tail_spark(blink(pose(base, 0, 1, 1.01, 0.995)), -8), 90, 38),
-        add_shadow(tail_spark(pose(base, 0, 0, 1.00, 1.00), -3), 88, 38),
-        add_shadow(tail_spark(pose(base, 0, -1, 0.995, 1.01), 4), 86, 34),
-        add_shadow(tail_spark(pose(base, 0, 0, 1.00, 1.00), 0), 88, 38),
-    ]
+    frames["idle"] = [idle_alive(base, i) for i in range(6)]
     frames["running-right"] = [bounce(base, i, 1) for i in range(8)]
     frames["running-left"] = [mirror(frame) for frame in frames["running-right"]]
     frames["waving"] = [wave(base, i) for i in range(4)]

@@ -6,9 +6,9 @@ This repo ships only the finished Codex pet assets. The private reference photos
 
 ## Animations
 
-Gus uses the full Codex pet atlas with distinct motions for every supported state:
+Gus uses the full Codex pet atlas with the always-on personality concentrated in `idle`, because Codex loops that row during normal pet display:
 
-- `idle`: soft breathing, blink, and a subtle tail wag.
+- `idle`: visible cute-alive loop with breathing/body bob, blink, shadow shift, and tail wag.
 - `running-right` / `running-left`: bouncy trot with grounded shadows.
 - `waving`: small front-paw lift.
 - `jumping`: squash, hop, air frame, and landing.
@@ -30,7 +30,7 @@ Then open Codex and refresh/select the custom pet:
 1. Open **Settings > Appearance > Pets**.
 2. Refresh custom pets from your local Codex home.
 3. Select **Gus**.
-4. Use `/pet` or **Wake Pet** to show him.
+4. Use `/pet` or **Wake Pet** to show him. If he was already open, tuck him away and wake him again after refreshing.
 
 ## Files
 
