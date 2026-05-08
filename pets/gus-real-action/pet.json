@@ -1,7 +1,7 @@
 {
   "id": "gus-real-action",
   "displayName": "Gus Real Action",
-  "description": "Gus with image-generated action rows: idle blink/tongue, running, waving, barking, sitting, spinning, and a flop.",
+  "description": "Gus with image-generated action rows: idle blink/tongue, directional running, waving, barking, sitting, eating kibble, spinning, and a flop.",
   "sprite": "spritesheet.webp",
   "spriteSize": {
     "width": 1536,
