@@ -16,4 +16,4 @@ for pet_dir in "$ROOT"/pets/*; do
   echo "Installed $pet_name to $dest"
 done
 
-echo "In Codex, open Settings > Appearance > Pets, refresh custom pets, then select Gus."
+echo "In Codex, open Settings > Appearance > Pets, refresh custom pets, then select the Gus version you want."

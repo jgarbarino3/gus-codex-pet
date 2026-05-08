@@ -8,7 +8,6 @@ from PIL import Image, ImageDraw, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "artifacts" / "gus_no_harness_source.png"
 ARTIFACTS = ROOT / "artifacts"
 QA = ROOT / "qa"
 PETS_DIR = ROOT / "pets"
@@ -30,6 +29,38 @@ ROW_COUNTS = {
     "review": 6,
 }
 ROW_ORDER = list(ROW_COUNTS)
+PET_SPECS = [
+    {
+        "id": "gus",
+        "displayName": "Gus",
+        "description": "Gus, a clean no-harness fox-red Labrador Codex pet.",
+        "source": ARTIFACTS / "gus_no_harness_source.png",
+    },
+    {
+        "id": "gus-sitting",
+        "displayName": "Gus Sitting",
+        "description": "Gus sitting upright like a good fox-red Labrador.",
+        "source": ARTIFACTS / "gus_sitting_source.png",
+    },
+    {
+        "id": "gus-laying",
+        "displayName": "Gus Laying",
+        "description": "Gus laying on his stomach with his head up.",
+        "source": ARTIFACTS / "gus_laying_source.png",
+    },
+    {
+        "id": "gus-life-jacket",
+        "displayName": "Gus Life Jacket",
+        "description": "Gus standing in an orange, red, and gray life jacket.",
+        "source": ARTIFACTS / "gus_life_jacket_source.png",
+    },
+    {
+        "id": "gus-life-jacket-classic",
+        "displayName": "Gus Life Jacket Classic",
+        "description": "Gus standing in the alternate orange and red life jacket style.",
+        "source": ARTIFACTS / "gus_life_jacket_classic_source.png",
+    },
+]
 
 
 def find_subject_bbox(mask: Image.Image) -> tuple[int, int, int, int]:
@@ -87,10 +118,10 @@ def remove_light_background(img: Image.Image) -> Image.Image:
     return rgba.crop(bbox)
 
 
-def extract_gus_sprite() -> Image.Image:
-    if not SOURCE.exists():
-        raise FileNotFoundError(SOURCE)
-    sheet = Image.open(SOURCE).convert("RGBA")
+def extract_gus_sprite(source: Path) -> Image.Image:
+    if not source.exists():
+        raise FileNotFoundError(source)
+    sheet = Image.open(source).convert("RGBA")
     crop = sheet
     dog = remove_light_background(crop)
     dog.thumbnail((158, 178), Image.Resampling.LANCZOS)
@@ -319,7 +350,7 @@ def make_contact_sheet(frames: dict[str, list[Image.Image]]) -> Image.Image:
     return sheet
 
 
-def validate(atlas: Image.Image) -> dict[str, object]:
+def validate(atlas: Image.Image, pet_id: str, source: Path) -> dict[str, object]:
     errors: list[str] = []
     if atlas.size != (1536, 1872):
         errors.append(f"atlas size was {atlas.size}, expected (1536, 1872)")
@@ -332,36 +363,69 @@ def validate(atlas: Image.Image) -> dict[str, object]:
                 errors.append(f"{state} frame {col} is empty")
             if col >= used and bbox is not None:
                 errors.append(f"{state} unused frame {col} is not transparent")
-    return {"errors": errors, "rows": ROW_COUNTS, "atlas_size": list(atlas.size), "source": str(SOURCE)}
+    return {"errors": errors, "id": pet_id, "rows": ROW_COUNTS, "atlas_size": list(atlas.size), "source": str(source)}
+
+
+def make_pose_overview(pet_frames: dict[str, dict[str, list[Image.Image]]]) -> Image.Image:
+    scale = 2
+    label_h = 34
+    cell_w = CELL_W * scale
+    cell_h = CELL_H * scale
+    sheet = Image.new("RGB", (cell_w * len(PET_SPECS), label_h + cell_h), (20, 22, 24))
+    d = ImageDraw.Draw(sheet)
+    for col, spec in enumerate(PET_SPECS):
+        x = col * cell_w
+        d.text((x + 10, 11), spec["displayName"], fill=(235, 229, 220))
+        frame = pet_frames[spec["id"]]["idle"][0]
+        enlarged = frame.resize((cell_w, cell_h), Image.Resampling.NEAREST)
+        bg = Image.new("RGB", (cell_w, cell_h), (20, 22, 24))
+        bg.paste(enlarged.convert("RGB"), mask=enlarged.getchannel("A"))
+        sheet.paste(bg, (x, label_h))
+        d.rectangle((x, label_h, x + cell_w - 1, label_h + cell_h - 1), outline=(64, 66, 68))
+    return sheet
 
 
 def main() -> None:
-    for path in [ARTIFACTS, QA, PETS_DIR]:
+    for path in [ARTIFACTS, QA, PETS_DIR, QA / "contact-sheets"]:
         path.mkdir(parents=True, exist_ok=True)
-    base = extract_gus_sprite()
-    base.save(ARTIFACTS / "gus_photoreal_base.png")
-    pet_dir = PETS_DIR / "gus"
-    pet_dir.mkdir(parents=True, exist_ok=True)
-    frames = build_frames(base)
-    atlas = make_atlas(frames)
-    atlas.save(ARTIFACTS / "gus_spritesheet.png")
-    atlas.save(pet_dir / "spritesheet.webp", "WEBP", lossless=True, quality=100, method=6)
-    make_contact_sheet(frames).save(QA / "contact-sheet.png", quality=95)
-    make_animation_previews(frames)
+    validations = []
+    pet_frames = {}
 
-    manifest = {
-        "id": "gus",
-        "displayName": "Gus",
-        "description": "Gus, a clean no-harness fox-red Labrador Codex pet.",
-        "spritesheetPath": "spritesheet.webp",
-    }
-    (pet_dir / "pet.json").write_text(json.dumps(manifest, indent=2) + "\n")
-    validation = validate(atlas)
-    if validation["errors"]:
-        raise SystemExit("validation failed: " + "; ".join(validation["errors"]))
-    (QA / "validation.json").write_text(json.dumps(validation, indent=2) + "\n")
-    print(ARTIFACTS / "gus_photoreal_base.png")
-    print(QA / "contact-sheet.png")
+    for spec in PET_SPECS:
+        pet_id = spec["id"]
+        source = spec["source"]
+        base = extract_gus_sprite(source)
+        if pet_id == "gus":
+            base.save(ARTIFACTS / "gus_photoreal_base.png")
+        frames = build_frames(base)
+        pet_frames[pet_id] = frames
+        atlas = make_atlas(frames)
+
+        pet_dir = PETS_DIR / pet_id
+        pet_dir.mkdir(parents=True, exist_ok=True)
+        atlas.save(ARTIFACTS / f"{pet_id}_spritesheet.png")
+        atlas.save(pet_dir / "spritesheet.webp", "WEBP", lossless=True, quality=100, method=6)
+        make_contact_sheet(frames).save(QA / "contact-sheets" / f"{pet_id}.png", quality=95)
+
+        manifest = {
+            "id": pet_id,
+            "displayName": spec["displayName"],
+            "description": spec["description"],
+            "spritesheetPath": "spritesheet.webp",
+        }
+        (pet_dir / "pet.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        validation = validate(atlas, pet_id, source)
+        validations.append(validation)
+        if validation["errors"]:
+            raise SystemExit(f"{pet_id} validation failed: " + "; ".join(validation["errors"]))
+
+    # Keep legacy QA paths focused on the default Gus pet for quick viewing.
+    make_atlas(pet_frames["gus"]).save(ARTIFACTS / "gus_spritesheet.png")
+    make_contact_sheet(pet_frames["gus"]).save(QA / "contact-sheet.png", quality=95)
+    make_animation_previews(pet_frames["gus"])
+    make_pose_overview(pet_frames).save(QA / "pose-overview.png", quality=95)
+    (QA / "validation.json").write_text(json.dumps({"errors": [], "pets": validations}, indent=2) + "\n")
+    print(QA / "pose-overview.png")
 
 
 if __name__ == "__main__":
