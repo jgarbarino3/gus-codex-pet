@@ -13,6 +13,7 @@ The shipped pet is intentionally clean and static. Codex did not reliably play t
 - `Gus Laying`: Gus laying on his stomach with his front paws out and head up.
 - `Gus Life Jacket`: Gus standing in a clean orange, red, and gray life jacket.
 - `Gus Life Jacket Classic`: Gus standing in the alternate life jacket style.
+- `Gus Real Action`: action-focused Gus with clearer running, waving, barking, waiting, flop, and review rows.
 
 Each pose is its own selectable Codex pet. The sitting and laying pets use fresh pose sources instead of stretched or squashed copies of the standing sprite.
 
@@ -44,6 +45,8 @@ pets/gus-life-jacket/pet.json
 pets/gus-life-jacket/spritesheet.webp
 pets/gus-life-jacket-classic/pet.json
 pets/gus-life-jacket-classic/spritesheet.webp
+pets/gus-real-action/pet.json
+pets/gus-real-action/spritesheet.webp
 ```
 
 Codex loads custom pets from:
@@ -57,6 +60,8 @@ Codex loads custom pets from:
 - `artifacts/gus_photoreal_base.png` shows the base Gus sprite.
 - `qa/contact-sheet.png` shows the full 9-row Codex atlas.
 - `qa/contact-sheets/*.png` shows the full 9-row Codex atlas for each pet.
+- `qa/previews/gus-real-action/*.gif` shows the individual action rows for the action-focused pet.
+- `qa/gus-real-action-idle-running-check.png` shows the corrected idle and running row sources.
 - `qa/pose-overview.png` shows all included Gus pets side by side.
 - `qa/validation.json` records atlas dimensions and transparent unused-cell validation for every pet.
 
