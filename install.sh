@@ -2,11 +2,18 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEST="${CODEX_HOME:-$HOME/.codex}/pets/gus"
+DEST_ROOT="${CODEX_HOME:-$HOME/.codex}/pets"
 
-mkdir -p "$DEST"
-cp "$ROOT/pets/gus/pet.json" "$DEST/pet.json"
-cp "$ROOT/pets/gus/spritesheet.webp" "$DEST/spritesheet.webp"
+mkdir -p "$DEST_ROOT"
 
-echo "Installed Gus to $DEST"
+for pet_dir in "$ROOT"/pets/*; do
+  [ -d "$pet_dir" ] || continue
+  pet_name="$(basename "$pet_dir")"
+  dest="$DEST_ROOT/$pet_name"
+  mkdir -p "$dest"
+  cp "$pet_dir/pet.json" "$dest/pet.json"
+  cp "$pet_dir/spritesheet.webp" "$dest/spritesheet.webp"
+  echo "Installed $pet_name to $dest"
+done
+
 echo "In Codex, open Settings > Appearance > Pets, refresh custom pets, then select Gus."
